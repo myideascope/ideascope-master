@@ -7,7 +7,7 @@ const Testimonials: React.FC = () => {
       name: 'Sarah J.',
       role: 'Founder, EcoTech Solutions',
       image: 'https://randomuser.me/api/portraits/women/32.jpg',
-      testimonial: 'StartupLaunch helped me transform my sustainable tech idea into a comprehensive business plan. I secured $1.2M in seed funding within 3 months of using the platform.',
+      testimonial: 'IdeaScope helped me transform my sustainable tech idea into a comprehensive business plan. I secured $1.2M in seed funding within 3 months of using the platform.',
       rating: 5
     },
     {

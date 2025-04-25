@@ -29,7 +29,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, menuItems }) =
           <SheetTitle>
             <div className="flex items-center">
               <RocketIcon className="h-5 w-5 text-primary mr-2" />
-              <span className="font-heading font-bold">StartupLaunch</span>
+              <span className="font-heading font-bold">IdeaScope</span>
             </div>
           </SheetTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
