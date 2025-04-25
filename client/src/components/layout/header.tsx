@@ -23,7 +23,7 @@ const Header: React.FC = () => {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <RocketIcon className="h-6 w-6 text-primary mr-2" />
-              <span className="font-heading font-bold text-lg text-neutral-800">StartupLaunch</span>
+              <span className="font-heading font-bold text-lg text-neutral-800">IdeaScope</span>
             </Link>
           </div>
           

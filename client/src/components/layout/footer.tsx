@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             <div className="flex items-center">
               <RocketIcon className="h-6 w-6 text-primary-400 mr-2" />
-              <span className="font-heading font-bold text-lg">StartupLaunch</span>
+              <span className="font-heading font-bold text-lg">IdeaScope</span>
             </div>
             <p className="mt-4 text-base text-neutral-300">
               Helping entrepreneurs transform ideas into investor-ready businesses.
@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
         
         <div className="mt-12 border-t border-neutral-700 pt-8">
           <p className="text-base text-neutral-400 text-center">
-            &copy; {new Date().getFullYear()} StartupLaunch. All rights reserved.
+            &copy; {new Date().getFullYear()} IdeaScope by Antonio Franco. All rights reserved.
           </p>
         </div>
       </div>

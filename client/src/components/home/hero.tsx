@@ -10,8 +10,8 @@ const Hero: React.FC = () => {
           <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
             <div className="sm:text-center lg:text-left">
               <h1 className="font-heading text-4xl tracking-tight font-bold text-neutral-900 sm:text-5xl md:text-6xl">
-                <span className="block">Transform your idea into a</span>
-                <span className="block text-primary">fundable startup</span>
+                <span className="block">IdeaScope</span>
+                <span className="block text-primary">Validate your startup idea</span>
               </h1>
               <p className="mt-3 text-base text-neutral-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                 Automatically evaluate your business idea, generate professional business plans, and create investor-ready pitch decks in minutes.
