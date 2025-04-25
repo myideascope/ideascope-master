@@ -14,14 +14,14 @@ const Testimonials: React.FC = () => {
       name: 'David L.',
       role: 'CEO, HealthConnect',
       image: 'https://randomuser.me/api/portraits/men/43.jpg',
-      testimonial: 'The financial projections and pitch deck we created through StartupLaunch gave us credibility with investors. Our angel round was oversubscribed thanks to the professional materials.',
+      testimonial: 'The financial projections and pitch deck we created through IdeaScope gave us credibility with investors. Our angel round was oversubscribed thanks to the professional materials.',
       rating: 5
     },
     {
       name: 'Michelle K.',
       role: 'Founder, EdTech Innovators',
       image: 'https://randomuser.me/api/portraits/women/68.jpg',
-      testimonial: 'As a non-technical founder, I was struggling with the financial modeling. StartupLaunch made it easy and gave me insights I hadn\'t considered. Now we\'re partnered with three major universities.',
+      testimonial: 'As a non-technical founder, I was struggling with the financial modeling. IdeaScope made it easy and gave me insights I hadn\'t considered. Now we\'re partnered with three major universities.',
       rating: 4.5
     }
   ];
@@ -51,7 +51,7 @@ const Testimonials: React.FC = () => {
             Founders Who Succeeded With Us
           </p>
           <p className="mt-4 max-w-2xl text-xl text-neutral-500 mx-auto">
-            See how StartupLaunch helped these founders secure funding and build successful companies.
+            See how IdeaScope helped these founders secure funding and build successful companies.
           </p>
         </div>
 
