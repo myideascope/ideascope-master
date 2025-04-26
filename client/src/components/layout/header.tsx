@@ -13,6 +13,7 @@ const Header: React.FC = () => {
   const menuItems = [
     { label: 'How it Works', href: '/#process' },
     { label: 'Features', href: '/#features' },
+    { label: 'Pricing', href: '/#pricing' },
     { label: 'Success Stories', href: '/#testimonials' },
   ];
 

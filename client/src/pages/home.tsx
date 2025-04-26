@@ -4,6 +4,7 @@ import Features from '@/components/home/features';
 import ProcessSteps from '@/components/home/process-steps';
 import Testimonials from '@/components/home/testimonials';
 import ResultsDemo from '@/components/home/results-demo';
+import Pricing from '@/components/home/pricing';
 import CTA from '@/components/home/cta';
 
 const Home: React.FC = () => {
@@ -14,6 +15,7 @@ const Home: React.FC = () => {
       <ProcessSteps />
       <ResultsDemo />
       <Testimonials />
+      <Pricing />
       <CTA />
     </div>
   );
