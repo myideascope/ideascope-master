@@ -1,12 +1,14 @@
 import React from 'react';
 import { useParams } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Link } from 'wouter';
 
 import ViabilityScore from '@/components/results/viability-score';
 import FinancialCharts from '@/components/results/financial-charts';
 import BusinessPlanPreview from '@/components/results/business-plan-preview';
 import PitchDeckPreview from '@/components/results/pitch-deck-preview';
+import AIRecommendations from '@/components/results/ai-recommendations';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -46,6 +48,24 @@ const Results: React.FC = () => {
   const { data: pitchDeckData, isLoading: isLoadingPitchDeck } = useQuery({
     queryKey: [`/api/generate/pitch-deck/${projectId}`],
     enabled: !!projectId && !isNaN(parsedProjectId),
+  });
+
+  // AI recommendations mutation
+  const aiRecommendationsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/ai/recommendations/${projectId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate AI recommendations');
+      }
+      
+      return response.json();
+    },
   });
 
   const isLoading = isLoadingProject || isLoadingResults || isLoadingFinancials ||
@@ -148,8 +168,9 @@ const Results: React.FC = () => {
 
       <h2 className="text-2xl font-bold mb-4">Business Materials</h2>
       <Tabs defaultValue="documents" className="mb-8">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
           <TabsTrigger value="next-steps">Next Steps</TabsTrigger>
         </TabsList>
         
@@ -161,6 +182,60 @@ const Results: React.FC = () => {
             
             {pitchDeckData && (
               <PitchDeckPreview projectData={pitchDeckData} />
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="ai-insights">
+          <div className="space-y-4">
+            {!aiRecommendationsMutation.data && !aiRecommendationsMutation.isPending && (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <h3 className="text-lg font-medium mb-2">Get AI-Powered Business Insights</h3>
+                  <p className="text-neutral-600 mb-4">
+                    Our AI will analyze your business data and provide intelligent recommendations, 
+                    risk analysis, and strategic insights to help improve your business plan.
+                  </p>
+                  <Button 
+                    onClick={() => aiRecommendationsMutation.mutate()}
+                    disabled={aiRecommendationsMutation.isPending}
+                  >
+                    {aiRecommendationsMutation.isPending ? 'Generating Insights...' : 'Generate AI Insights'}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+            
+            {aiRecommendationsMutation.isPending && (
+              <AIRecommendations 
+                recommendations={{} as any} 
+                isLoading={true} 
+              />
+            )}
+            
+            {aiRecommendationsMutation.data && (
+              <AIRecommendations 
+                recommendations={aiRecommendationsMutation.data} 
+                isLoading={false} 
+              />
+            )}
+            
+            {aiRecommendationsMutation.error && (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Failed to Generate AI Insights</h3>
+                  <p className="text-neutral-600 mb-4">
+                    {aiRecommendationsMutation.error.message || 'Something went wrong. Please try again.'}
+                  </p>
+                  <Button 
+                    onClick={() => aiRecommendationsMutation.mutate()}
+                    variant="outline"
+                  >
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
         </TabsContent>

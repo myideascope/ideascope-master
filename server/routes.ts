@@ -10,6 +10,8 @@ import {
   insertFinancialProjectionsSchema,
   insertEvaluationResultsSchema
 } from "@shared/schema";
+import { generateBusinessPlan, generatePitchDeckHtml } from "../client/src/lib/document-generator";
+import { aiService } from "./ai-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -275,6 +277,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to generate pitch deck' });
+    }
+  });
+
+  // AI-powered business recommendations
+  app.post('/api/ai/recommendations/:projectId', async (req: Request, res: Response) => {
+    const projectId = parseInt(req.params.projectId);
+    if (isNaN(projectId)) {
+      return res.status(400).json({ message: 'Valid projectId is required' });
+    }
+    
+    try {
+      // Get all project data
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+      
+      const marketAnalysis = await storage.getMarketAnalysis(projectId);
+      const productDetails = await storage.getProductDetails(projectId);
+      const financialProjections = await storage.getFinancialProjections(projectId);
+      
+      // Generate AI recommendations
+      const recommendations = await aiService.generateBusinessRecommendations(
+        project,
+        marketAnalysis,
+        productDetails,
+        financialProjections
+      );
+      
+      return res.json(recommendations);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ 
+        message: err instanceof Error ? err.message : 'Failed to generate AI recommendations' 
+      });
+    }
+  });
+
+  // AI-enhanced business plan
+  app.post('/api/ai/enhance-plan/:projectId', async (req: Request, res: Response) => {
+    const projectId = parseInt(req.params.projectId);
+    if (isNaN(projectId)) {
+      return res.status(400).json({ message: 'Valid projectId is required' });
+    }
+    
+    try {
+      // Get all project data
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+      
+      const marketAnalysis = await storage.getMarketAnalysis(projectId);
+      const productDetails = await storage.getProductDetails(projectId);
+      const financialProjections = await storage.getFinancialProjections(projectId);
+      
+      // Generate enhanced business plan
+      const enhancedPlan = await aiService.enhanceBusinessPlan(
+        project,
+        marketAnalysis,
+        productDetails,
+        financialProjections
+      );
+      
+      return res.json({ enhancedPlan });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ 
+        message: err instanceof Error ? err.message : 'Failed to enhance business plan' 
+      });
     }
   });
 
