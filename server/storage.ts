@@ -6,6 +6,8 @@ import {
   financialProjections, type FinancialProjections, type InsertFinancialProjections,
   evaluationResults, type EvaluationResults, type InsertEvaluationResults
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -41,183 +43,144 @@ export interface IStorage {
   updateEvaluationResults(id: number, evaluationResults: Partial<InsertEvaluationResults>): Promise<EvaluationResults>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private projects: Map<number, Project>;
-  private marketAnalysis: Map<number, MarketAnalysis>;
-  private productDetails: Map<number, ProductDetails>;
-  private financialProjections: Map<number, FinancialProjections>;
-  private evaluationResults: Map<number, EvaluationResults>;
-  
-  private currentUserId: number;
-  private currentProjectId: number;
-  private currentMarketAnalysisId: number;
-  private currentProductDetailsId: number;
-  private currentFinancialProjectionsId: number;
-  private currentEvaluationResultsId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.projects = new Map();
-    this.marketAnalysis = new Map();
-    this.productDetails = new Map();
-    this.financialProjections = new Map();
-    this.evaluationResults = new Map();
-    
-    this.currentUserId = 1;
-    this.currentProjectId = 1;
-    this.currentMarketAnalysisId = 1;
-    this.currentProductDetailsId = 1;
-    this.currentFinancialProjectionsId = 1;
-    this.currentEvaluationResultsId = 1;
-  }
-
-  // User methods
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
-  // Project methods
   async getProject(id: number): Promise<Project | undefined> {
-    return this.projects.get(id);
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project || undefined;
   }
 
   async getProjectsByUserId(userId: number): Promise<Project[]> {
-    return Array.from(this.projects.values())
-      .filter(project => project.userId === userId);
+    return await db.select().from(projects).where(eq(projects.userId, userId));
   }
 
   async createProject(insertProject: InsertProject): Promise<Project> {
-    const id = this.currentProjectId++;
-    const createdAt = new Date();
-    const project: Project = { ...insertProject, id, createdAt };
-    this.projects.set(id, project);
+    const [project] = await db
+      .insert(projects)
+      .values(insertProject)
+      .returning();
     return project;
   }
 
   async updateProject(id: number, projectUpdate: Partial<InsertProject>): Promise<Project> {
-    const existingProject = this.projects.get(id);
-    if (!existingProject) {
-      throw new Error(`Project with id ${id} not found`);
-    }
-    
-    const updatedProject: Project = { ...existingProject, ...projectUpdate };
-    this.projects.set(id, updatedProject);
-    return updatedProject;
+    const [project] = await db
+      .update(projects)
+      .set(projectUpdate)
+      .where(eq(projects.id, id))
+      .returning();
+    return project;
   }
 
   async deleteProject(id: number): Promise<boolean> {
-    return this.projects.delete(id);
+    const result = await db.delete(projects).where(eq(projects.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
-  // Market analysis methods
   async getMarketAnalysis(projectId: number): Promise<MarketAnalysis | undefined> {
-    return Array.from(this.marketAnalysis.values())
-      .find(analysis => analysis.projectId === projectId);
+    const [analysis] = await db.select().from(marketAnalysis).where(eq(marketAnalysis.projectId, projectId));
+    return analysis || undefined;
   }
 
   async createMarketAnalysis(insertMarketAnalysis: InsertMarketAnalysis): Promise<MarketAnalysis> {
-    const id = this.currentMarketAnalysisId++;
-    const marketAnalysis: MarketAnalysis = { ...insertMarketAnalysis, id };
-    this.marketAnalysis.set(id, marketAnalysis);
-    return marketAnalysis;
+    const [analysis] = await db
+      .insert(marketAnalysis)
+      .values(insertMarketAnalysis)
+      .returning();
+    return analysis;
   }
 
   async updateMarketAnalysis(id: number, marketAnalysisUpdate: Partial<InsertMarketAnalysis>): Promise<MarketAnalysis> {
-    const existingMarketAnalysis = this.marketAnalysis.get(id);
-    if (!existingMarketAnalysis) {
-      throw new Error(`Market analysis with id ${id} not found`);
-    }
-    
-    const updatedMarketAnalysis: MarketAnalysis = { ...existingMarketAnalysis, ...marketAnalysisUpdate };
-    this.marketAnalysis.set(id, updatedMarketAnalysis);
-    return updatedMarketAnalysis;
+    const [analysis] = await db
+      .update(marketAnalysis)
+      .set(marketAnalysisUpdate)
+      .where(eq(marketAnalysis.id, id))
+      .returning();
+    return analysis;
   }
 
-  // Product details methods
   async getProductDetails(projectId: number): Promise<ProductDetails | undefined> {
-    return Array.from(this.productDetails.values())
-      .find(details => details.projectId === projectId);
+    const [details] = await db.select().from(productDetails).where(eq(productDetails.projectId, projectId));
+    return details || undefined;
   }
 
   async createProductDetails(insertProductDetails: InsertProductDetails): Promise<ProductDetails> {
-    const id = this.currentProductDetailsId++;
-    const productDetails: ProductDetails = { ...insertProductDetails, id };
-    this.productDetails.set(id, productDetails);
-    return productDetails;
+    const [details] = await db
+      .insert(productDetails)
+      .values(insertProductDetails)
+      .returning();
+    return details;
   }
 
   async updateProductDetails(id: number, productDetailsUpdate: Partial<InsertProductDetails>): Promise<ProductDetails> {
-    const existingProductDetails = this.productDetails.get(id);
-    if (!existingProductDetails) {
-      throw new Error(`Product details with id ${id} not found`);
-    }
-    
-    const updatedProductDetails: ProductDetails = { ...existingProductDetails, ...productDetailsUpdate };
-    this.productDetails.set(id, updatedProductDetails);
-    return updatedProductDetails;
+    const [details] = await db
+      .update(productDetails)
+      .set(productDetailsUpdate)
+      .where(eq(productDetails.id, id))
+      .returning();
+    return details;
   }
 
-  // Financial projections methods
   async getFinancialProjections(projectId: number): Promise<FinancialProjections | undefined> {
-    return Array.from(this.financialProjections.values())
-      .find(projections => projections.projectId === projectId);
+    const [projections] = await db.select().from(financialProjections).where(eq(financialProjections.projectId, projectId));
+    return projections || undefined;
   }
 
   async createFinancialProjections(insertFinancialProjections: InsertFinancialProjections): Promise<FinancialProjections> {
-    const id = this.currentFinancialProjectionsId++;
-    const financialProjections: FinancialProjections = { ...insertFinancialProjections, id };
-    this.financialProjections.set(id, financialProjections);
-    return financialProjections;
+    const [projections] = await db
+      .insert(financialProjections)
+      .values(insertFinancialProjections)
+      .returning();
+    return projections;
   }
 
   async updateFinancialProjections(id: number, financialProjectionsUpdate: Partial<InsertFinancialProjections>): Promise<FinancialProjections> {
-    const existingFinancialProjections = this.financialProjections.get(id);
-    if (!existingFinancialProjections) {
-      throw new Error(`Financial projections with id ${id} not found`);
-    }
-    
-    const updatedFinancialProjections: FinancialProjections = { ...existingFinancialProjections, ...financialProjectionsUpdate };
-    this.financialProjections.set(id, updatedFinancialProjections);
-    return updatedFinancialProjections;
+    const [projections] = await db
+      .update(financialProjections)
+      .set(financialProjectionsUpdate)
+      .where(eq(financialProjections.id, id))
+      .returning();
+    return projections;
   }
 
-  // Evaluation results methods
   async getEvaluationResults(projectId: number): Promise<EvaluationResults | undefined> {
-    return Array.from(this.evaluationResults.values())
-      .find(results => results.projectId === projectId);
+    const [results] = await db.select().from(evaluationResults).where(eq(evaluationResults.projectId, projectId));
+    return results || undefined;
   }
 
   async createEvaluationResults(insertEvaluationResults: InsertEvaluationResults): Promise<EvaluationResults> {
-    const id = this.currentEvaluationResultsId++;
-    const evaluationResults: EvaluationResults = { ...insertEvaluationResults, id };
-    this.evaluationResults.set(id, evaluationResults);
-    return evaluationResults;
+    const [results] = await db
+      .insert(evaluationResults)
+      .values(insertEvaluationResults)
+      .returning();
+    return results;
   }
 
   async updateEvaluationResults(id: number, evaluationResultsUpdate: Partial<InsertEvaluationResults>): Promise<EvaluationResults> {
-    const existingEvaluationResults = this.evaluationResults.get(id);
-    if (!existingEvaluationResults) {
-      throw new Error(`Evaluation results with id ${id} not found`);
-    }
-    
-    const updatedEvaluationResults: EvaluationResults = { ...existingEvaluationResults, ...evaluationResultsUpdate };
-    this.evaluationResults.set(id, updatedEvaluationResults);
-    return updatedEvaluationResults;
+    const [results] = await db
+      .update(evaluationResults)
+      .set(evaluationResultsUpdate)
+      .where(eq(evaluationResults.id, id))
+      .returning();
+    return results;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
